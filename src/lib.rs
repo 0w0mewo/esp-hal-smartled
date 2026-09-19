@@ -39,8 +39,7 @@ use core::{fmt::Debug, marker::PhantomData};
 
 pub use color_order::ColorOrder;
 use esp_hal::{
-    Async, Blocking, DriverMode,
-    clock::Clocks,
+    Async, Blocking, DriverMode, clock,
     gpio::{Level, interconnect::PeripheralOutput},
     rmt::{
         Channel, ConfigError as RmtConfigError, Error as RmtError, PulseCode, Tx, TxChannelConfig,
@@ -452,9 +451,8 @@ where
     /// Returns (zero_pulse, one_pulse, reset_pulse)
     fn get_timings_for(t: &Timing) -> (PulseCode, PulseCode, PulseCode) {
         // Assume the RMT peripheral is set up to use the APB clock
-        let clocks = Clocks::get();
         // convert to the MHz value to simplify nanosecond calculations
-        let src_clock = clocks.apb_clock.as_hz() / 1_000_000;
+        let src_clock = clock::ll::apb_clk_frequency() / 1_000_000;
 
         (
             zero_pulse(t, src_clock),
